@@ -1,11 +1,78 @@
 var _ = require('lodash');
 var fs = require('fs');
 var path = require('path');
+const axios = require('axios');
+
+// get user info from sso
+// qihengshan: add for sso
+function getUserInfo(req, res, next) {
+    const token = req.query.token
+    const authorization = req.cookies.Authorization
+    console.info(token)
+    if((token == 'undefined' || token == '' || token == null) && (authorization == 'undefined' || authorization == '' || authorization == null)){
+        return res.redirect("http://do.qihengshanqihengshan/?redirect=http://db-dev.qihengshanqihengshan/mongoApp/")
+    }else{
+        // url='http://devops-portal-ui.dev.k8s.qihengshanqihengshan/'
+        // url="http://devops-portal-ui.dev.k8s.qihengshanqihengshan/api/portal/v1/service/user"
+        axios({
+            url: "http://do.qihengshanqihengshan/api/portal/v1/service/user",
+            headers: { 'Authorization': req.cookies.Authorization }
+        })
+        .then(function(response) {
+            if(response.data.msg !== 'SUCCESS'){
+                return res.redirect("http://do.qihengshanqihengshan/?redirect=http://db-dev.qihengshanqihengshan/mongoApp/")
+            }
+            // nconf.add('userInfo', { type: 'literal', store: response.data});
+            // console.info('>>'+JSON.stringify(req.cookies))
+            // console.info(JSON.parse(req.cookies))
+            
+            if(req.session.userName){
+                // console.info("### check here userName exists ###")
+                console.log("")
+            }else{
+                req.session.userName = response.data.data.username
+            }
+
+            if(req.session.departmentName){
+                // console.info("### check here departmentName exists ###")
+                console.log("")
+            }else{
+                req.session.departmentName = response.data.data.departmentName
+            }
+
+            req.session.cookie.maxAge = 1800000
+
+            /*
+            if(req.cookies['userName'] === undefined){
+                console.info("### check here userName not exists will set this key ###")
+                res.cookie('userName', response.data.data.username, {domain: '.qihengshanqihengshan', maxAge: 1800 * 10000});
+            }else{
+                console.info("### check here userName exists ###")
+            }
+            if(req.cookies["departmentName"] === undefined){
+                console.info("### check here departmentName not exists will set this key ###")
+                res.cookie('departmentName', response.data.data.departmentName, {domain: '.qihengshanqihengshan', maxAge: 1800 * 10})
+            }else{
+                console.info("### check here departmentName exists ###")
+            }
+            */
+        })
+        .catch(function(error) {
+            console.log(error)
+        })
+        // for next()
+        next()
+    }
+}
 
 // checks for the password in the /config/app.json file if it's set
 exports.checkLogin = function(req, res, next){
     var passwordConf = req.nconf.app.get('app');
 
+    getUserInfo(req, res, next)
+
+    /*
+    // ------------------------ //
     // only check for login if a password is specified in the /config/app.json file
     if(passwordConf && passwordConf.hasOwnProperty('password')){
         // dont require login session for login route
@@ -23,6 +90,8 @@ exports.checkLogin = function(req, res, next){
         // no password is set so we continue
         next();
     }
+    // ------------------------ //
+    */
 };
 
 // gets some db stats

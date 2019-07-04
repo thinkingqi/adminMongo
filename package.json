@@ -47,6 +47,7 @@
   ],
   "dependencies": {
     "async": "^2.0.0",
+    "axios": "^0.19.0",
     "body-parser": "^1.15.2",
     "bootstrap": "^3.3.7",
     "config": "^1.21.0",
@@ -54,6 +55,7 @@
     "express": "^4.14.0",
     "express-handlebars": "^3.0.0",
     "express-session": "^1.14.0",
+    "file-stream-rotator": "^0.4.1",
     "font-awesome": "^4.6.3",
     "hbs": "^4.0.0",
     "i18n-2": "^0.6.3",
@@ -71,6 +73,8 @@
     "ncp": "^2.0.0",
     "nedb": "^1.8.0",
     "node-delete": "^0.1.2",
+    "npm-install-peers": "^1.2.1",
+    "pm2": "^3.5.1",
     "serve-favicon": "~2.4.3"
   },
   "license": "MIT",
@@ -82,9 +86,8 @@
     "eslint-config-standard": "^5.3.5",
     "eslint-plugin-promise": "^2.0.0",
     "eslint-plugin-standard": "^2.0.0",
-    "jsdom": "^9.4.1",
     "mocha": "^2.5.3",
-    "mocha-jsdom": "^1.1.0",
+    "mocha-jsdom": "^1.2.0",
     "supertest": "^1.2.0"
   }
 }

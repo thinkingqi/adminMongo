@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="google" content="notranslate" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>adminMongo</title>
+    <title>MongoSelfHelp</title>
     <link rel='stylesheet' type='text/css' href='{{app_context}}/bootstrap/css/bootstrap.min.css' />
     <link rel='stylesheet' type='text/css' href='{{app_context}}/css/flatly.bootstrap.min.css' />
     <link rel="stylesheet" type='text/css' href='{{app_context}}/css/highlightjs.github.min.css'>
@@ -40,7 +40,7 @@
                 <div class="row">
                     <div class="col-lg-12 no-pad-left no-pad-right">
                         <div class="navTitle"> 
-                            <a href="{{app_context}}/app"><img src="{{app_context}}/static/logo.png">adminMongo</a>
+                            <a href="{{app_context}}/app"><img src="{{app_context}}/static/logo.png">MongoSelfHelp</a>
                         </div>
                     </div>
                 </div>
@@ -84,7 +84,7 @@
                         {{#ifOr monitoring connection_list}}
                             <div class="navbar-left no-pad-left no-pad-right">
                                 <div class="navTitle navTitleDark"> 
-                                    <a href="{{app_context}}/app"><img src="{{app_context}}/static/logo.png">adminMongo</a>
+                                    <a href="{{app_context}}/app"><img src="{{app_context}}/static/logo.png">MongoSelfHelp</a>
                                 </div>
                             </div>
                         {{/ifOr}}
@@ -96,10 +96,13 @@
                         <ul class="nav navbar-nav navbar-right">
                             <div id="navbar" class="navbar-collapse collapse">
                                 <ul class="nav navbar-nav">
-                                    {{#if conn_name}}
-                                        <li><a href="{{app_context}}/app/monitoring/{{conn_name}}"><i class="fa fa-desktop"></i>&nbsp; {{__ "Monitoring"}}</a></li>
-                                    {{/if}}
-                                    <li><a href="{{app_context}}/app/connection_list"><i class="fa fa-plug"></i>&nbsp; {{__ "Connections"}}</a></li>
+                                    {{#ifCond session.departmentName 'DBA' }}
+                                        {{#if conn_name}}
+                                            <li><a href="{{app_context}}/app/monitoring/{{conn_name}}"><i class="fa fa-desktop"></i>&nbsp; {{__ "Monitoring"}}</a></li>
+                                        {{/if}}
+                                    {{/ifCond}}
+                                    {{!-- <li><a href="{{app_context}}/app/connection_list"><i class="fa fa-plug"></i>&nbsp; {{__ "Connections"}}</a></li> --}}
+                                    <li><a href="{{app_context}}/"><i class="fa fa-plug"></i>&nbsp; {{__ "Connections"}}</a></li>
                                     {{#if session.loggedIn}}
                                         <li><a href="{{app_context}}/app/logout"><i class="fa fa-sign-out"></i>&nbsp; {{__ "Logout"}}</a></li>
                                     {{/if}}

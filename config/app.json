@@ -1,1 +1,10 @@
-{}
+{
+    "app": {
+        "host": "0.0.0.0",
+        "port": 80,
+        "?password": "adminPassword",
+        "locale": "zh-cn",
+        "context": "mongoApp",
+        "monitoring": false
+    }
+}

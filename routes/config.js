@@ -40,7 +40,8 @@ router.post('/config/add_config', function (req, res, next){
                 res.status(400).json({'msg': req.i18n.__('Config error') + ': ' + err});
             }else{
                 // set the new config
-                nconf.set('connections:' + req.body[0], {'connection_string': req.body[1], 'connection_options': options});
+                // init nconf.set('connections:' + req.body[0], {'connection_string': req.body[1], 'connection_options': options});
+                nconf.set('connections:' + req.body[0], {'departmentName': req.session.departmentName,'connection_string': req.body[1], 'connection_options': options});
 
                 // save for ron
                 nconf.save(function (err){
@@ -82,7 +83,7 @@ router.post('/config/update_config', function (req, res, next){
                 delete nconf.store.connections[req.body.curr_config];
 
                 // set the new
-                nconf.set('connections:' + req.body.conn_name, {'connection_string': req.body.conn_string, 'connection_options': current_options});
+                nconf.set('connections:' + req.body.conn_name, {'departmentName': req.session.departmentName, 'connection_string': req.body.conn_string, 'connection_options': current_options});
 
                 // save for ron
                 nconf.save(function (err){

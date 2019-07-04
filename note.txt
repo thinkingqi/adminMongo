@@ -1,0 +1,77 @@
+
+pm2 start ecosystem.json
+pm2 stop mongoApp
+pm2 delete mongoApp
+
+// init config.json
+{
+  "connections": {
+    "Ptest-MongoDB": {
+      "connection_string": "mongodb://chjroot:mongodbchjrootCHJ@172.21.188.10:27101",
+      "connection_options": {
+        "poolSize": 10,
+        "autoReconnect": false,
+        "ssl": false
+      }
+    },
+    "Ptest-MongoDB02": {
+      "connection_string": "mongodb://chjroot:mongodbchjrootCHJ@172.21.188.10:27101",
+      "connection_options": {
+        "poolSize": 10,
+        "autoReconnect": false,
+        "ssl": false
+      }
+    }
+  }
+}
+// done
+
+npm start
+
+
+// 或者 prod
+pm2 start app.js
+
+
+
+# Start all apps
+pm2 start ecosystem.json
+
+# Stop
+pm2 stop ecosystem.json
+
+# Restart
+pm2 start ecosystem.json
+## Or
+pm2 restart ecosystem.json
+
+# Reload
+pm2 reload ecosystem.json
+
+# Delete from PM2
+pm2 delete ecosystem.json
+
+#---------#
+
+
+# Inject what is declared in env_production
+pm2 start app.json --env production 
+
+# Inject what is declared in env_staging
+pm2 restart app.json --env staging
+
+
+
+
+#----------#
+
+# Start the maximum processes depending on available CPUs
+pm2 start app.js -i 0
+
+# Start the maximum processes -1 depending on available CPUs
+pm2 start app.js -i -1
+
+# Start 3 processes
+pm2 start app.js -i 3
+
+

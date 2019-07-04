@@ -1,6 +1,7 @@
 var express = require('express');
 var path = require('path');
 var logger = require('morgan');
+var FileStreamRotator = require('file-stream-rotator')
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var handlebars = require('express-handlebars');
@@ -69,6 +70,12 @@ handlebars = handlebars.create({
         },
         ifNotOr: function (v1, v2, options){
             return(v1 || v2) ? options.inverse(this) : options.fn(this);
+        },
+        ifCond: function(v1, v2, options) {
+            if(v1 === v2) {
+              return options.fn(this);
+            }
+            return options.inverse(this);
         },
         formatBytes: function (bytes){
             if(bytes === 0)return'0 Byte';
@@ -170,6 +177,84 @@ if(nconf.stores.app.get('app:context') !== undefined){
     app_context = '/' + nconf.stores.app.get('app:context');
 }
 
+
+
+
+
+
+
+// log cutting config
+var logDirectory = path.join(__dirname, 'logs')
+
+// ensure log directory exists
+fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory)
+
+// create a rotating write stream
+var accessLogStream = FileStreamRotator.getStream({
+  date_format: 'YYYY-MM-DD',
+  filename: path.join(logDirectory, 'access-%DATE%.log'),
+  frequency: 'daily',
+  verbose: false
+})
+
+// setup the logger == morgan
+// app.use(logger('combined', {stream: accessLogStream}))
+
+// self Date Format
+// 對Date的擴展，將 Date 轉化爲指定格式的String
+// 月(M)、日(d)、小時(h)、分(m)、秒(s)、季度(q) 可以用 1-2 個佔位符， 
+// 年(y)可以用 1-4 個佔位符，毫秒(S)只能用 1 個佔位符(是 1-3 位的數字) 
+// 例子： 
+// (new Date()).Format("yyyy-MM-dd hh:mm:ss.S") ==> 2006-07-02 08:09:04.423 
+// (new Date()).Format("yyyy-M-d h:m:s.S")      ==> 2006-7-2 8:9:4.18 
+Date.prototype.Format = function (fmt) { //author: meizz 
+    var o = {
+        "M+": this.getMonth() + 1, //月份 
+        "d+": this.getDate(), //日 
+        "h+": this.getHours(), //小時 
+        "m+": this.getMinutes(), //分 
+        "s+": this.getSeconds(), //秒 
+        "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
+        "S": this.getMilliseconds() //毫秒 
+    };
+    if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    for (var k in o)
+    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    return fmt;
+}
+
+
+// self token 
+logger.token('from', function(req, res){
+    return JSON.stringify(req.params) || '-';
+});
+logger.token('date', function(req, res){
+    return new Date().Format("yyyy-MM-dd hh:mm:ss"); 
+});
+
+logger.token('username', function (req, res) { 
+    var username = req.session.userName ? req.session.userName: "Guest";
+    return username;
+});
+
+// app.use(logger(':date :username :from :remote-addr :remote-user :method :url HTTP/:http-version :status :res[content-length] - :response-time ms', {stream: accessLogStream}))
+app.use(logger(':date :username :from :remote-addr :remote-user :method :url :status :res[content-length] - :response-time ms', {stream: accessLogStream}))
+// app.use(logger(function (tokens, req, res) {
+//     return [
+//       tokens.method(req, res),
+//       tokens.url(req, res),
+//       tokens.status(req, res),
+//       tokens.res(req, res, 'content-length'), '-',
+//       tokens['response-time'](req, res), 'ms'
+//     ].join(' ')
+//   }, {stream: accessLogStream}))
+
+
+
+
+
+
+
 app.use(logger('dev'));
 app.use(bodyParser.json({limit: '16mb'}));
 app.use(bodyParser.urlencoded({extended: false}));
@@ -180,6 +265,7 @@ app.use(session({
     secret: '858SGTUyX8w1L6JNm1m93Cvm8uX1QX2D',
     resave: true,
     saveUninitialized: true
+    // store: new Datastore({filename: path.join(dir_base, 'data/sessStats.db'), autoload: true})
 }));
 
 // front-end modules loaded from NPM
@@ -270,6 +356,10 @@ app.locals.dbConnections = null;
 async.forEachOf(connection_list, function (value, key, callback){
     var MongoURI = require('mongo-uri');
 
+    /*
+    value:{"connection_string":"mongodb://chjroot:mongodbchjrootCHJ@172.21.188.10:27101","connection_options":{"poolSize":10,"autoReconnect":false,"ssl":false}}
+    key:"Ptest-MongoDB"
+    */
     try{
         MongoURI.parse(value.connection_string);
         connPool.addConnection({connName: key, connString: value.connection_string, connOptions: value.connection_options}, app, function (err, data){

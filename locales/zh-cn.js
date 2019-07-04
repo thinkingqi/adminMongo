@@ -115,7 +115,7 @@
 	"Documents successfully added": "添加文档成功",
 	"document": "文档",
 	"No such document": "没有找到文档",
-	"Link": "链接",
+	"Link": "详情",
 	"Server status": "服务器状态",
 	"Document(s) successfully deleted": "文档删除成功",
 	"Error deleting document(s)": "文档删除失败",
@@ -130,5 +130,6 @@
 	"Backup": "备份",
 	"Database successfully backed up": "数据库备份成功",
 	"Query": "查询",
-	"Indexes": "索引"
+	"Indexes": "索引",
+	"Unable to backup database": "Unable to backup database"
 }

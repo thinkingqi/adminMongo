@@ -1,0 +1,19 @@
+{
+  "apps" : [{
+    "name"       : "mongoApp",
+    "script"     : "app.js",
+    "instances"  : "4",
+    "log_date_format"  : "YYYY-MM-DD HH:mm Z",
+    "log_file"   : "./logs/child.log",
+    "error_file" : "./logs/mongoApp.stderr.log",
+    "out_file"   : "./logs/mongoApp.stdout.log",
+    "pid_file"   : "./logs/mongoaPP.pid",
+    "exec_mode"  : "cluster_mode",
+    "ignoreWatch" : ["[\\/\\\\]\\./","logs", "data", "config", "node_modules"],
+    "watch"      : true,
+    "port"       : 80,
+    "env": {
+        "NODE_ENV": "production"
+    }
+  }]
+}

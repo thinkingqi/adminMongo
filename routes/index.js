@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 var _ = require('lodash');
 var common = require('./common');
+const axios = require('axios');
+// var fs = require('fs');
 
 // runs on all routes and checks password if one is setup
 router.all('/*', common.checkLogin, function (req, res, next){
@@ -22,6 +24,7 @@ router.all('/app/*', common.checkLogin, function (req, res, next){
 router.get('/app/', function (req, res, next){
     var connection_list = req.nconf.connections.get('connections');
 
+    /* // Comment the original jump to the first connected code; // begin
     if(connection_list){
         if(Object.keys(connection_list).length > 0){
             // we have a connection and redirect to the first
@@ -30,6 +33,7 @@ router.get('/app/', function (req, res, next){
             return;
         }
     }
+    */  // Comment the original jump to the first connected code; // end
     // if no connections, go to connection setup
     res.redirect(req.app_context + '/app/connection_list');
     return;
@@ -80,13 +84,104 @@ router.post('/app/login_action', function (req, res, next){
 // Show/manage connections
 router.get('/app/connection_list', function (req, res, next){
     var connection_list = req.nconf.connections.get('connections');
+    console.log("connection_list outer axios:", connection_list)
+    /*
+    { 
+        'Ptest-MongoDB':
+        { connection_string: 'mongodb://xxxx:xxxx@1.1.1.1:27101',
+            connection_options: { poolSize: 10, autoReconnect: false, ssl: false } },
+        'Ptest-MongoDB02':
+        { connection_string: 'mongodb://xxxx:xxxx@1.1.1.1:27101:27101',
+            connection_options: { poolSize: 10, autoReconnect: false, ssl: false } } 
+    }
+     */
 
-    res.render('connections', {
-        message: '',
-        editor: true,
-        connection_list: common.order_object(connection_list),
-        helpers: req.handlebars.helpers
-    });
+    // axios({
+    //     url: "http://devops-portal-ui.dev.k8s.qihengshanqihengshan/api/portal/v1/service/user",
+    //     headers: { 'Authorization': req.cookies.Authorization }
+    // })
+    // .then(function(response) {
+    //     console.log(response.data)
+    //     // fs.writeFileSync('./tmp_session.txt', response.data, 'utf8');
+    // })
+
+    axios({
+        // url: "http://devops-portal-ui.dev.k8s.qihengshanqihengshan/api/portal/v1/service/user",
+        url: "http://do.qihengshanqihengshan/api/portal/v1/service/user",
+        headers: { 'Authorization': req.cookies.Authorization }
+    })
+    .then( response => {
+        var connection_list = req.nconf.connections.get('connections');
+        // check again for connection_list
+        if (Object.keys(connection_list).length == 0 || connection_list == undefined){
+            console.log('emptyCheckFunc execute!!!')
+            var path = require('path');
+            var nconf = require('nconf');
+
+            var dir_base = __dirname;
+            var dir_config = path.join(dir_base, '../config/');
+            var config_connections = path.join(dir_config, 'config.json');
+            console.log("config_connections: file: ", config_connections)
+            nconf.add('connections', {type: 'file', file: config_connections});
+            var connection_list = req.nconf.connections.get('connections');
+            console.log("connection_list:", connection_list)
+        }
+        // check again for connection_list done
+        
+        console.log('---------------------------------')
+        console.log('###', response.data.data.departmentName, response.data.data.username, '###')
+        console.log('connection_list:', connection_list)
+        console.log('---------------------------------')
+        
+        // filter by departmental conditions
+        for (var conn in connection_list){
+            if(req.session.userName !== 'qihengshan'){
+                if(connection_list[conn]['departmentName'] !== req.session.departmentName){
+                    delete connection_list[conn]
+                }
+            }
+        }
+    
+        res.render('connections', {
+            message: '',
+            editor: true,
+            connection_list: common.order_object(connection_list),
+            helpers: req.handlebars.helpers
+        });
+    })
+    .catch(error => {
+        console.log("#-------app/connection_list post error-------")
+        console.log(error)
+        console.log('#--------------------------------------------#')
+    })
+    // --------------------------------------------------------------------------- // 
+    // async function getData() {
+    //     return await axios({
+    //         url: "http://devops-portal-ui.dev.k8s.qihengshanqihengshan/api/portal/v1/service/user",
+    //         headers: {'Authorization': req.cookies.Authorization}
+    //     });
+    // }
+    // (async () => {
+    //     data = await getData()
+    //     console.log(data.data)
+    // })()
+
+
+    // --------------------------------------------------------------------------- // 
+    // filter by departmental conditions
+    // for (var conn in connection_list){
+    //     console.info(connection_list[conn]['departmentName'])
+    //     if(connection_list[conn]['departmentName'] !== req.session.departmentName){
+    //         delete connection_list[conn]
+    //     }
+    // }
+
+    // res.render('connections', {
+    //     message: '',
+    //     editor: true,
+    //     connection_list: common.order_object(connection_list),
+    //     helpers: req.handlebars.helpers
+    // });
 });
 
 // Show server monitoring
@@ -163,6 +258,9 @@ router.get('/app/:conn', function (req, res, next){
 router.get('/app/:conn/:db', function (req, res, next){
     var connection_list = req.app.locals.dbConnections;
 
+    // console.info("#--------index.js------/app/:conn/:db--------#")
+    // console.info(connection_list)
+
     // Check for existance of connection
     if(connection_list[req.params.conn] === undefined){
         common.render_error(res, req, req.i18n.__('Invalid connection name'), req.params.conn);
@@ -174,7 +272,7 @@ router.get('/app/:conn/:db', function (req, res, next){
         common.render_error(res, req, req.i18n.__('Invalid database name'), req.params.conn);
         return;
     }
-    // Get DB's form pool
+    // Get DB's from pool
     var mongo_db = connection_list[req.params.conn].native.db(req.params.db);
 
     // do DB stuff

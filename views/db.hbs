@@ -18,31 +18,41 @@
             <button class="btn btn-danger btn-sm" id="coll_delete">{{__ "Delete"}}</button>
         </span>	
     </div>
-    <div class="formBreak"></div>
-    <h4>{{__ "Create User"}}</h4>
-    <label for="new_username">{{__ "Username"}}</label>
-    <input type="text" class="form-control input-sm" id="new_username" placeholder="{{__ "Username"}}"><br/>
-    <label for="new_pasword">{{__ "User Password"}}</label>
-    <input type="password" class="form-control input-sm" id="new_password" placeholder="{{__ "Password"}}"><br/>
-    <label for="new_password_confirm">{{__ "Confirm password"}}</label>
-    <input type="password" class="form-control input-sm" id="new_password_confirm" placeholder="{{__ "Confirm"}}"><br/>
-    <label for="new_user_roles">{{__ "Roles"}}</label>
-    <input type="text" class="form-control input-sm" id="new_user_roles" placeholder="{{__ "Optional: comma separated user roles"}}"><br/>
-    <button class="btn btn-success btn-sm pull-right" id="user_create">{{__ "Create user"}}</button>
-    <div class="formBreak"></div>
-    {{#if conn_users}}
-        <label for="del_user_name">{{__ "Delete user"}}</label>
-        <div class="input-group">
-            <select class="form-control input-sm" id="del_user_name">
-                {{#each conn_users.users}}
-                    <option>{{this.user}}</option>
-                {{/each}}
-            </select>
-            <span class="input-group-btn">
-                <button class="btn btn-danger btn-sm" id="user_delete">{{__ "Delete"}}</button>
-            </span>	
-        </div>
-    {{/if}}
+    {{!-- <div>
+        Your session xt is here >>> {{log session}}
+        Your session xt is here >>> {{log session.userName}}
+        Your session xt is here >>> {{log session.departmentName}}
+    </div> --}}
+    {{#ifCond session.departmentName 'DBA' }}
+        {{#ifCond session.userName 'qihengshan'}}
+            <div class="formBreak"></div>
+            <h4>{{__ "Create User"}}</h4>
+            <label for="new_username">{{__ "Username"}}</label>
+            <input type="text" class="form-control input-sm" id="new_username" placeholder="{{__ "Username"}}"><br/>
+            <label for="new_pasword">{{__ "User Password"}}</label>
+            <input type="password" class="form-control input-sm" id="new_password" placeholder="{{__ "Password"}}"><br/>
+            <label for="new_password_confirm">{{__ "Confirm password"}}</label>
+            <input type="password" class="form-control input-sm" id="new_password_confirm" placeholder="{{__ "Confirm"}}"><br/>
+            <label for="new_user_roles">{{__ "Roles"}}</label>
+            <input type="text" class="form-control input-sm" id="new_user_roles" placeholder="{{__ "Optional: comma separated user roles"}}"><br/>
+            <button class="btn btn-success btn-sm pull-right" id="user_create">{{__ "Create user"}}</button>
+            <div class="formBreak"></div>
+        
+            {{#if conn_users}}
+                <label for="del_user_name">{{__ "Delete user"}}</label>
+                <div class="input-group">
+                    <select class="form-control input-sm" id="del_user_name">
+                        {{#each conn_users.users}}
+                            <option>{{this.user}}</option>
+                        {{/each}}
+                    </select>
+                    <span class="input-group-btn">
+                        <button class="btn btn-danger btn-sm" id="user_delete">{{__ "Delete"}}</button>
+                    </span>	
+                </div>
+            {{/if}}
+        {{/ifCond}}
+    {{/ifCond}}
 </div>
 <div class="col-lg-7">
     <h4>{{__ "Database statistics"}}</h4>
