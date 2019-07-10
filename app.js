@@ -357,8 +357,8 @@ async.forEachOf(connection_list, function (value, key, callback){
     var MongoURI = require('mongo-uri');
 
     /*
-    value:{"connection_string":"mongodb://chjroot:mongodbchjrootCHJ@172.21.188.10:27101","connection_options":{"poolSize":10,"autoReconnect":false,"ssl":false}}
-    key:"Ptest-MongoDB"
+    value:{"connection_string":"mongodb://xxxx:xxxx@1.1.1.1:27101","connection_options":{"poolSize":10,"autoReconnect":false,"ssl":false}}
+    key:"PMongoDB"
     */
     try{
         MongoURI.parse(value.connection_string);
